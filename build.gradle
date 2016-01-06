@@ -1,0 +1,10 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+group = 'net.zhuoweizhang'
+version = '1.0.0'
+
+dependencies {
+	compile gradleApi()
+	compile localGroovy()
+}
