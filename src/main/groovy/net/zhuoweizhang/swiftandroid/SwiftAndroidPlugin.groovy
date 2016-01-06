@@ -6,25 +6,33 @@ import org.gradle.api.tasks.*
 public class SwiftAndroidPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
-		//Task writeNdkConfigTask = createWriteNdkConfigTask(project, "writeNdkConfigSwift")
+		Task writeNdkConfigTask = createWriteNdkConfigTask(project, "writeNdkConfigSwift")
 		Task compileSwiftTask = createCompileSwiftTask(project, "compileSwift")
-		//compileSwiftTask.dependsOn("writeNdkConfigSwift")
+		compileSwiftTask.dependsOn("writeNdkConfigSwift")
 		Task copySwiftStdlibTask = createCopyStdlibTask(project, "copySwiftStdlib")
 		Task copySwiftTask = createCopyTask(project, "copySwift")
 		copySwiftTask.dependsOn("compileSwift", "copySwiftStdlib")
+		Task cleanSwiftTask = project.task(
+			type: Delete, "cleanSwift") {
+			// I don't trust Swift Package Manager's --clean
+			delete "src/main/swift/.build"
+		}
 		project.afterEvaluate {
 			// according to Protobuf gradle plugin, the Android variants are only available here
 			// TODO: read those variants; we only support debug right now
 			Task compileNdkTask = project.tasks.getByName("compileDebugNdk")
 			compileNdkTask.dependsOn("copySwift")
+			Task cleanTask = project.tasks.getByName("clean")
+			cleanTask.dependsOn("cleanSwift")
 		}
 	}
 	public static File getNdkRoot() {
-		return new File("/home/zhuowei/ndk")
+		return new File(System.getenv("ANDROID_NDK_HOME"))
 	}
 
 	public static File getSwiftRoot() {
-		return new File("/home/zhuowei/build/Ninja-ReleaseAssert+stdlib-DebugAssert/swift-linux-x86_64")
+		return new File("which swift".execute().text).
+			parentFile.parentFile
 	}
 
 	public static Task createCopyStdlibTask(Project project, String name) {
