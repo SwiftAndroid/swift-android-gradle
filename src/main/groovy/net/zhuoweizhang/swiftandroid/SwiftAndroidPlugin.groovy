@@ -57,13 +57,14 @@ public class SwiftAndroidPlugin implements Plugin<Project> {
 	}
 	public static Task createWriteNdkConfigTask(Project project, String name) {
 		return project.task(type: Exec, name) {
-			commandLine("bash", "-c", 'echo ANDROID_NDK_HOME=$ANDROID_NDK_HOME >~/.swift-android-ndk-home')
+			commandLine("bash", "-c", 'echo \"export ANDROID_NDK_HOME=\\\"$ANDROID_NDK_HOME\\\"\" >~/.swift-android-ndk-home')
 		}
 	}
 	public static Task createCompileSwiftTask(Project project, String name) {
 		return project.task(type: Exec, name) {
-			commandLine("bash", "-c", "SWIFTC=" + SwiftAndroidPlugin.swiftRoot.absolutePath + 
-				"/bin/swiftc-pm-android swift build")
+			commandLine("bash", "-c", "SWIFTC=\"" +
+				SwiftAndroidPlugin.swiftRoot.absolutePath +
+				"/bin/swiftc-pm-android\" swift build")
 			workingDir("src/main/swift")
 		}
 	}
